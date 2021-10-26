@@ -5,12 +5,13 @@ Command to run this code -> Open Visual studio Developer Command Prompt and go t
 */
 
 #include <windows.h>
+#include<stdio.h>
 #include "resource.h"
 
 
 //Global Function declaration
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-BOOL CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
 
 //Global Variable Declaration 
 
@@ -104,21 +105,20 @@ void DisableFunctionality(HWND hDlg, int iId) {
 void EnableFunctionality(HWND hDlg, int iId) {
 	SendDlgItemMessage(hDlg, iId, EM_SETREADONLY, FALSE, 0);
 }
-BOOL CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
+
+INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 	TCHAR str[255], tmp[255];
 	UINT uiCode, uiId;
 	UINT UserId;
-	static BOOL bEnableEditControls = false;
+	static BOOL bEnableEditControls, bEnableIdEditControl;
 	switch (iMsg) {
 	case WM_INITDIALOG:
-		//SetFocus(GetDlgItem(hDlg, ID_EDIT_TEXT_BOX_1));
-		//SetFocus(hDlg);
 		CheckRadioButton(hDlg, ID_RADIO_REGISTER, ID_RADIO_NEW, ID_RADIO_NEW);
+		DisableFunctionality(hDlg, ID_EDIT_TEXT_BOX_1);
 		bEnableEditControls = TRUE;
-		//SetWindowText(hDlg, TEXT("Omkar"));
-
-		//GetDlgItemText(hDlg, ID_COMBOBOX_CITY, TEXT("HELLO"), 10);
+		bEnableIdEditControl = FALSE;
 		break;
+
 	case WM_COMMAND:
 		if (wParam == IDOK) {
 			GetDlgItemText(hDlg, ID_EDIT_TEXT_BOX_1, str, 255);
@@ -128,20 +128,26 @@ BOOL CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 			EndDialog(hDlg, 0);
 		}
 		if (wParam == ID_RADIO_REGISTER) {
-			//MessageBox(hDlg, TEXT("IDRADIO1 selected"), TEXT("IDRADIO1"), MB_OK);
 			CheckRadioButton(hDlg, ID_RADIO_REGISTER, ID_RADIO_NEW, ID_RADIO_REGISTER);
+
+			EnableFunctionality(hDlg, ID_EDIT_TEXT_BOX_1);
+
 			DisableFunctionality(hDlg, ID_FNAME_INPUT);
 			DisableFunctionality(hDlg, ID_MNAME_INPUT);
 			DisableFunctionality(hDlg, ID_LNAME_INPUT);
 			bEnableEditControls = FALSE;
+			bEnableIdEditControl = TRUE;
 		}
 		else if (wParam == ID_RADIO_DELETE) {
-			//MessageBox(hDlg, TEXT("IDAUTORADIO1 selected"), TEXT("IDAUTORADIO1"), MB_OK);
 			CheckRadioButton(hDlg, ID_RADIO_REGISTER, ID_RADIO_NEW, ID_RADIO_DELETE);
+
+			EnableFunctionality(hDlg, ID_EDIT_TEXT_BOX_1);
+
 			DisableFunctionality(hDlg, ID_FNAME_INPUT);
 			DisableFunctionality(hDlg, ID_MNAME_INPUT);
 			DisableFunctionality(hDlg, ID_LNAME_INPUT);
 			bEnableEditControls = FALSE;
+			bEnableIdEditControl = TRUE;
 		}
 		else if (wParam == ID_RADIO_NEW) {
 			//MessageBox(hDlg, TEXT("IDAUTORADIO1 selected"), TEXT("IDAUTORADIO1"), MB_OK);
@@ -149,7 +155,11 @@ BOOL CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 			EnableFunctionality(hDlg, ID_FNAME_INPUT);
 			EnableFunctionality(hDlg, ID_MNAME_INPUT);
 			EnableFunctionality(hDlg, ID_LNAME_INPUT);
+
+			DisableFunctionality(hDlg, ID_EDIT_TEXT_BOX_1);
+
 			bEnableEditControls = TRUE;
+			bEnableIdEditControl = FALSE;
 		}
 		
 		/*Spot validation begins*/
@@ -157,15 +167,17 @@ BOOL CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 		uiId = LOWORD(wParam);
 		switch (uiCode) {
 		case EN_KILLFOCUS:
-			if (!bEnableEditControls)
-				break;
 			if (uiId == ID_EDIT_TEXT_BOX_1) {
+				if (!bEnableIdEditControl)
+					break;
 				GetDlgItemText(hDlg, ID_EDIT_TEXT_BOX_1, str, 255);
+
+				//If nothing is input and want to switch to another option, allowing to do
+				if (strcmp(str, "") == 0)
+					break;
 				bool bFlag = true;
 				int i = 0;
 				while (str[i] != '\0') {
-					/*wsprintf(tmp, TEXT("str[i] = %d"), int(str[i]));
-					MessageBox(hDlg, tmp, TEXT("Ascci value"), MB_OK);*/
 					if (!(int(str[i]) >= 48 && int(str[i]) <= 57)) {
 						MessageBox(hDlg, TEXT("Text can not be enter in ID field"), TEXT("Error"), MB_OK);
 						SetFocus((HWND)lParam);
@@ -184,6 +196,8 @@ BOOL CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 			}
 
 			if (uiId == ID_FNAME_INPUT || uiId == ID_MNAME_INPUT || uiId == ID_LNAME_INPUT) {
+				if (!bEnableEditControls)
+					break;
 				int i = 0;
 				int iFlag = 0;
 				switch (uiId) {
@@ -197,6 +211,10 @@ BOOL CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 					GetDlgItemText(hDlg, ID_LNAME_INPUT, str, 255);
 					break;
 				}
+
+				//If nothing is input and want to switch to another option, allowing to do
+				if (strcmp(str, "") == 0)
+					break;
 				do {
 					if (!(int(str[i]) >= 65 && int(str[i]) <= 90) || str[0] == '\0') {
 						MessageBox(hDlg, TEXT("Please enter valid name"), TEXT("Error"), MB_OK);
