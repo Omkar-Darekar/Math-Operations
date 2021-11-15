@@ -8,6 +8,8 @@ Command to run this code -> Open Visual studio Developer Command Prompt and go t
 #include<stdio.h>
 #include "resource.h"
 #include<iostream>
+#include<algorithm>
+//#include <bits/stdc++.h>
 
 using namespace std;
 
@@ -109,8 +111,15 @@ void EnableFunctionality(HWND hDlg, int iId) {
 	SendDlgItemMessage(hDlg, iId, EM_SETREADONLY, FALSE, 0);
 }
 
+// Function to check the small string
+bool compare(string& s1, string& s2)
+{
+	return s1.size() < s2.size();
+}
+
 INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 	TCHAR str[255], tmp[255];
+	wchar_t State[255];
 	UINT uiCode, uiId;
 	UINT UserId;
 	static BOOL bEnableEditControls, bEnableIdEditControl;
@@ -122,15 +131,13 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 	static char* pch;
 	static char line[255] = { "\0" };
 	static string sCity;
+	int TotalNumberOfItemInCombobox;
 	switch (iMsg) {
 	case WM_INITDIALOG:
 		CheckRadioButton(hDlg, ID_RADIO_REGISTER, ID_RADIO_NEW, ID_RADIO_NEW);
 		DisableFunctionality(hDlg, ID_EDIT_TEXT_BOX_1);
 		bEnableEditControls = TRUE;
 		bEnableIdEditControl = FALSE;
-		//SetDlgItemText(hDlg, ID_COMBOBOX_CITY, TEXT("Omkar"));
-		//SendMessage(hDlg, ID_COMBOBOX_CITY, 0, reinterpret_cast<LPARAM>((LPCTSTR)Countries[0]));
-		//SendDlgItemMessage(hDlg, ID_COMBOBOX_CITY, CB_ADDSTRING, (wParam)0, TEXT("Omkar"));
 		
 		fp = fopen("City-State-List.txt", "r");
 		if (fp == NULL) {
@@ -140,23 +147,30 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 		}
 		
 		while (fgets(line, 255, fp) != NULL) {
-			//cout << "line : " << line << endl;
 			pch = strtok(line, " ");
 			while (pch != NULL) {
 				printf("\nValue : %s", pch);
 				pch = strtok(NULL, " ");
 				printf("\tKey : %s\t", pch);
-				sCity.append(pch);
+				//sCity.append(pch);
 				SendDlgItemMessage(hDlg, ID_COMBOBOX_CITY, CB_ADDSTRING, 0, (LPARAM)pch);
 				break;
 			}
-			//free(line);
 		}
-		/*for (int i = 0; i < sCity.length(); i++) {
-			SendDlgItemMessage(hDlg, ID_COMBOBOX_CITY, CB_ADDSTRING, 0, (LPARAM)((sCity.pop_back()));
+		TotalNumberOfItemInCombobox = SendDlgItemMessage(hDlg, ID_COMBOBOX_CITY, CB_GETCOUNT, 0, 0);
+		for (int i = 0; i < TotalNumberOfItemInCombobox; i++) {
+			SendDlgItemMessage(hDlg, ID_COMBOBOX_CITY, CB_GETLBTEXT, i, (LPARAM)pch);
+			sCity.append(pch);
+		}
+		/*FILE* _fp;
+		_fp = fopen("String.txt", "a+");
+		if (_fp != NULL) {
+			int n = sizeof(sCity) / sizeof(sCity[0]);
+			//sort(sCity, sCity + n, compare);
+			//sort(begin(sCity), end(sCity));
+			fprintf(_fp, "%s", sCity.c_str());
+			fclose(_fp);
 		}*/
-		
-		//SendDlgItemMessage(GetDlgItem(hDlg, ID_COMBOBOX_CITY), ID_COMBOBOX_CITY, CB_ADDSTRING, 0, (LPARAM)"O");
 		break;
 
 	case WM_COMMAND:
@@ -202,6 +216,27 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 			bEnableIdEditControl = FALSE;
 		}
 		
+
+		/* City-State Combobox*/
+		uiCode = HIWORD(wParam);
+		uiId = LOWORD(wParam);
+		switch (uiCode) {
+		case CBN_SELCHANGE:
+			if (uiId == ID_COMBOBOX_CITY) {
+				int iIndexOfSelectedOption = SendDlgItemMessage(hDlg, ID_COMBOBOX_CITY, CB_GETCURSEL, 0, 0);
+				//SendDlgItemMessage(hDlg, ID_COMBOBOX_CITY, CB_GETLBTEXT, iIndexOfSelectedOption, (LPARAM)pch);
+				//sprintf(pch, "%s", sCity[iIndexOfSelectedOption]);
+
+				char a[256] = {"\0"};
+				//strcpy(a, (sCity[iIndexOfSelectedOption]).c_str());
+				strcat(a, sCity[iIndexOfSelectedOption]);
+				MessageBox(hDlg, (LPCTSTR)a, TEXT("COMBO BOX"), MB_OK);
+				//MessageBox()
+			}
+			break;
+
+		}
+
 		/*Spot validation begins*/
 		uiCode = HIWORD(wParam);
 		uiId = LOWORD(wParam);
