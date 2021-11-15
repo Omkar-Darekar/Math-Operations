@@ -11,6 +11,8 @@ Command to run this code -> Open Visual studio Developer Command Prompt and go t
 #include<algorithm>
 #include<map>
 #include <iterator>
+
+#include "HelperFunction.h"
 //#include <bits/stdc++.h>
 
 using namespace std;
@@ -132,9 +134,9 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 	static FILE* fp;
 	static char* pch;
 	static char line[255] = { "\0" };
-	static char Key[256] = { "\0" }, Value[256] = { "\0" };
 	static string sCity;
 	int TotalNumberOfItemInCombobox;
+	static char FName[256] = { "\0" }, MName[256] = { "\0" }, LName[256] = { "\0" }, FileUserData[1024] = { "\0" }, CityChoosen[256] = { "\0" };
 	switch (iMsg) {
 	case WM_INITDIALOG:
 		CheckRadioButton(hDlg, ID_RADIO_REGISTER, ID_RADIO_NEW, ID_RADIO_NEW);
@@ -168,6 +170,40 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 		break;
 
 	case WM_COMMAND:
+		if (wParam == IDOK) {
+			TCHAR FilePath[256];
+			int i = 0;
+			for (i = 1; i <= 100; i++) {
+				wsprintf(FilePath, TEXT("%d.txt"), i);
+				if (IsFilePresent((LPCSTR)FilePath))
+					break;
+			}
+			/*Checking input string which is going to be write into file is not NULL*/
+			if (!(strcmp(FName, "")) || !(strcmp(MName, "")) || !(strcmp(LName, "")) || !(strcmp(CityChoosen, ""))) {
+				MessageBox(hDlg, TEXT("Please enter valid inputs"), TEXT("Error"), MB_OK);
+				break;
+			}
+			sprintf(FileUserData, "ID : %d\n%s %s %s\nCity : %s", i, FName, MName, LName, CityChoosen);
+			fp = fopen(FilePath, "a+");
+			if (fp == NULL) {
+				MessageBox(hDlg, TEXT("Error while creating new user!"), TEXT("ERROR"), MB_OK);
+				break;
+			}
+			fprintf(fp, "%s", FileUserData);
+			fclose(fp);
+
+			/*Clearing text from input box after writing it into file*/
+			DisableFunctionality(hDlg, ID_FNAME_INPUT);
+			DisableFunctionality(hDlg, ID_MNAME_INPUT);
+			DisableFunctionality(hDlg, ID_LNAME_INPUT);
+			HWND CBHwnd = GetDlgItem(hDlg, ID_COMBOBOX_CITY);
+			ComboBox_Enable(CBHwnd, FALSE);
+
+			TCHAR temp[256];
+			wsprintf(temp, "Your ID is %d. Please note it down carefully.", i);
+			MessageBox(hDlg, temp, TEXT("Information"), MB_OK);
+
+		}
 		if (wParam == IDCANCEL) {
 			EndDialog(hDlg, 0);
 		}
@@ -215,7 +251,8 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 			if (uiId == ID_COMBOBOX_CITY) {
 				int iIndexOfSelectedOption = SendDlgItemMessage(hDlg, ID_COMBOBOX_CITY, CB_GETCURSEL, 0, 0);
 				SendDlgItemMessage(hDlg, ID_COMBOBOX_CITY, CB_GETLBTEXT, iIndexOfSelectedOption, (LPARAM)pch);
-				MessageBox(hDlg, (LPCTSTR)pch, TEXT("COMBO BOX"), MB_OK);
+				//MessageBox(hDlg, (LPCTSTR)pch, TEXT("COMBO BOX"), MB_OK);
+				strcpy(CityChoosen, pch);
 			}
 			break;
 
@@ -262,12 +299,15 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 				switch (uiId) {
 				case ID_FNAME_INPUT:
 					GetDlgItemText(hDlg, ID_FNAME_INPUT, str, 255);
+					strcpy(FName, str);
 					break;
 				case ID_MNAME_INPUT:
 					GetDlgItemText(hDlg, ID_MNAME_INPUT, str, 255);
+					strcpy(MName, str);
 					break;
 				case ID_LNAME_INPUT:
 					GetDlgItemText(hDlg, ID_LNAME_INPUT, str, 255);
+					strcpy(LName, str);
 					break;
 				}
 
@@ -290,9 +330,6 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 		}
 		break;
 
-		if (wParam == IDOK) {
-			
-		}
 	default:
 		return(FALSE);
 	}
