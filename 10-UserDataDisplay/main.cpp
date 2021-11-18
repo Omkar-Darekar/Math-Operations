@@ -121,6 +121,9 @@ bool compare(string& s1, string& s2)
 	return s1.size() < s2.size();
 }
 
+void SetTextToTextBox(HWND hDlg, int ID, char* str) {
+	SetDlgItemText(hDlg, ID, LPCSTR(str));
+}
 INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 	TCHAR str[255], tmp[255];
 	wchar_t State[255];
@@ -180,10 +183,69 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 		if (wParam == IDOK) {
 			if (bDeleteSelected) {
 				//If delete selected
-
+				GetDlgItemText(hDlg, ID_EDIT_TEXT_BOX_1, str, 255);
+				wsprintf(tmp, TEXT("%s.txt"), str);
+				if (DeleteFileA(LPCSTR(tmp))) {
+					MessageBox(hDlg, TEXT("User successfully removed"), TEXT("Success"), MB_OK);
+				}
+				else {
+					MessageBox(hDlg, TEXT("Error while removing user"), TEXT("Error"), MB_OK);
+				}
 			}
 			else if (bRegisteredSelected) {
-				//If register is selected
+				//If register is selected, show its value to text box in read only format
+				GetDlgItemText(hDlg, ID_EDIT_TEXT_BOX_1, str, 255);
+				if (strcmp(str, "") == 0) {
+					MessageBox(hDlg, TEXT("Enter valid number"), TEXT("Error"), MB_OK);
+					break;
+				}
+				char FileName[256] = { "\0" };
+				sprintf(FileName, "%s.txt", str);
+				fp = fopen(FileName, "r");
+				if (fp == NULL) {
+					MessageBox(hDlg, TEXT("Error while retriving user."), TEXT("File access error"), MB_OK);
+					break;
+				}
+				char line[256] = { "\0" };
+				int TextLineCnt = 1;
+				while (fgets(line, sizeof(line), fp) != NULL) {
+					if (TextLineCnt == 1){}
+					else if (TextLineCnt == 2) {
+						//Setting FName, MName, LName from the file to Text box
+						const char delim[] = ":";
+						char* token = NULL;
+						token = strtok(line, delim);
+						while (token != NULL) {
+							token = strtok(NULL, delim);
+							break;
+						}
+						char FName[256] = { "\0" }, MName[256] = { "\0" }, LName[256] = { "\0" };
+
+						sprintf(line, "%s", token);
+						const char delim1[] = " ";
+						token = NULL;
+						token = strtok(line, delim1);
+						int iTmpCnt = 1;
+						while (token != NULL) {
+							if (iTmpCnt == 1)
+								sprintf(FName, "%s", token);
+							else if (iTmpCnt == 2)
+								sprintf(MName, "%s", token);
+							else if (iTmpCnt == 3)
+								sprintf(LName, "%s", token);
+							token = strtok(NULL, delim1);
+							iTmpCnt++;
+						}
+
+						SetTextToTextBox(hDlg, ID_FNAME_INPUT, FName);
+						SetTextToTextBox(hDlg, ID_MNAME_INPUT, MName);
+						SetTextToTextBox(hDlg, ID_LNAME_INPUT, LName);
+					}
+					else if (TextLineCnt == 3){}
+						
+					//Incrementing counter after every line read
+					TextLineCnt++;
+				}
 
 			}
 			else if (bNewUserSelected) {
@@ -194,15 +256,22 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 					if (IsFilePresent((LPCSTR)FilePath))
 						break;
 				}
+
 				/*Checking input string which is going to be write into file is not NULL*/
 				if (!(strcmp(FName, "")) || !(strcmp(MName, "")) || !(strcmp(LName, "")) || !(strcmp(CityChoosen, ""))) {
 					MessageBox(hDlg, TEXT("Please enter valid inputs"), TEXT("Error"), MB_OK);
 					break;
 				}
-				sprintf(FileUserData, "ID : %d\n%s %s %s\nCity : %s", i, FName, MName, LName, CityChoosen);
+
+				//Taking current date and time
+				SYSTEMTIME SysTime;
+				GetLocalTime(&SysTime);
+
+				sprintf(FileUserData, "ID : %d\nName : %s %s %s\nCity : %sRegistration Date and Time : %02d-%02d-%02d %02d:%02d:%02d",
+					i, FName, MName, LName, CityChoosen, SysTime.wDay, SysTime.wMonth, SysTime.wYear, SysTime.wHour, SysTime.wMinute, SysTime.wSecond);
 				fp = fopen(FilePath, "a+");
 				if (fp == NULL) {
-					MessageBox(hDlg, TEXT("Error while creating new user!"), TEXT("ERROR"), MB_OK);
+					MessageBox(hDlg, TEXT("Error while creating new user!"), TEXT("FILE ACCESS ERROR"), MB_OK);
 					break;
 				}
 				fprintf(fp, "%s", FileUserData);
@@ -216,8 +285,12 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 				TCHAR temp[256];
 				wsprintf(temp, "Your ID is %d. Please note it down carefully.", i);
 				MessageBox(hDlg, temp, TEXT("Information"), MB_OK);
-			}
 
+			}
+			//SetDlgItemText(hDlg, ID_EDIT_TEXT_BOX_1, TEXT(""));
+			SetTextToTextBox(hDlg, ID_EDIT_TEXT_BOX_1, "");
+			
+			break;
 		}
 		if (wParam == IDCANCEL) {
 			EndDialog(hDlg, 0);
@@ -326,15 +399,10 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 						if (IsFilePresent((LPCSTR)FilePath)) {
 							MessageBox(hDlg, TEXT("User is not registered.\nPlease register first"), TEXT("User not available"), MB_OK);
 							SetFocus((HWND)lParam);
-							SetDlgItemText(hDlg, ID_EDIT_TEXT_BOX_1, TEXT(""));
+							SetTextToTextBox(hDlg, ID_EDIT_TEXT_BOX_1, "");
 							break;
 						}
-						if (wParam == ID_RADIO_REGISTER) {
-							MessageBox(hDlg, TEXT("Regester selected"), TEXT("OK"), MB_OK);
-						}
-						else if (wParam == ID_RADIO_DELETE) {
-							MessageBox(hDlg, TEXT("Delete selected"), TEXT("OK"), MB_OK);
-						}
+						
 					}
 				}
 			}
