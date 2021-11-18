@@ -125,7 +125,7 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 	TCHAR str[255], tmp[255];
 	wchar_t State[255];
 	UINT uiCode, uiId, UserId;
-	static BOOL bEnableEditControls, bEnableIdEditControl, bRegisteredSelected, bDeleteSelected;
+	static BOOL bEnableEditControls, bEnableIdEditControl, bRegisteredSelected, bDeleteSelected, bNewUserSelected;
 	static HWND h1;
 	const char* Countries[10024];
 	int iSizeOfArray = sizeof(Countries) / sizeof(Countries[0]);
@@ -144,9 +144,12 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 		bEnableEditControls = TRUE;
 		bEnableIdEditControl = FALSE;
 		
-		//Initially Register and Delete 
+		//Initially Register and Delete is False because it New user selected already
 		bRegisteredSelected = FALSE;
 		bDeleteSelected = FALSE;
+
+		//Initially New user selected
+		bNewUserSelected = TRUE;
 
 		fp = fopen("City-State-List.txt", "r");
 		if (fp == NULL) {
@@ -175,35 +178,45 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 
 	case WM_COMMAND:
 		if (wParam == IDOK) {
-			TCHAR FilePath[256];
-			int i = 0;
-			for (i = 1; i <= 100; i++) {
-				wsprintf(FilePath, TEXT("%d.txt"), i);
-				if (IsFilePresent((LPCSTR)FilePath))
-					break;
-			}
-			/*Checking input string which is going to be write into file is not NULL*/
-			if (!(strcmp(FName, "")) || !(strcmp(MName, "")) || !(strcmp(LName, "")) || !(strcmp(CityChoosen, ""))) {
-				MessageBox(hDlg, TEXT("Please enter valid inputs"), TEXT("Error"), MB_OK);
-				break;
-			}
-			sprintf(FileUserData, "ID : %d\n%s %s %s\nCity : %s", i, FName, MName, LName, CityChoosen);
-			fp = fopen(FilePath, "a+");
-			if (fp == NULL) {
-				MessageBox(hDlg, TEXT("Error while creating new user!"), TEXT("ERROR"), MB_OK);
-				break;
-			}
-			fprintf(fp, "%s", FileUserData);
-			fclose(fp);
+			if (bDeleteSelected) {
+				//If delete selected
 
-			/*Clearing text from input box after writing it into file*/
-			DisableFunctionality(hDlg, ID_FNAME_INPUT);
-			DisableFunctionality(hDlg, ID_MNAME_INPUT);
-			DisableFunctionality(hDlg, ID_LNAME_INPUT);
-			
-			TCHAR temp[256];
-			wsprintf(temp, "Your ID is %d. Please note it down carefully.", i);
-			MessageBox(hDlg, temp, TEXT("Information"), MB_OK);
+			}
+			else if (bRegisteredSelected) {
+				//If register is selected
+
+			}
+			else if (bNewUserSelected) {
+				TCHAR FilePath[256];
+				int i = 0;
+				for (i = 1; i <= 100; i++) {
+					wsprintf(FilePath, TEXT("%d.txt"), i);
+					if (IsFilePresent((LPCSTR)FilePath))
+						break;
+				}
+				/*Checking input string which is going to be write into file is not NULL*/
+				if (!(strcmp(FName, "")) || !(strcmp(MName, "")) || !(strcmp(LName, "")) || !(strcmp(CityChoosen, ""))) {
+					MessageBox(hDlg, TEXT("Please enter valid inputs"), TEXT("Error"), MB_OK);
+					break;
+				}
+				sprintf(FileUserData, "ID : %d\n%s %s %s\nCity : %s", i, FName, MName, LName, CityChoosen);
+				fp = fopen(FilePath, "a+");
+				if (fp == NULL) {
+					MessageBox(hDlg, TEXT("Error while creating new user!"), TEXT("ERROR"), MB_OK);
+					break;
+				}
+				fprintf(fp, "%s", FileUserData);
+				fclose(fp);
+
+				/*Clearing text from input box after writing it into file*/
+				DisableFunctionality(hDlg, ID_FNAME_INPUT);
+				DisableFunctionality(hDlg, ID_MNAME_INPUT);
+				DisableFunctionality(hDlg, ID_LNAME_INPUT);
+
+				TCHAR temp[256];
+				wsprintf(temp, "Your ID is %d. Please note it down carefully.", i);
+				MessageBox(hDlg, temp, TEXT("Information"), MB_OK);
+			}
 
 		}
 		if (wParam == IDCANCEL) {
@@ -219,6 +232,7 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 			DisableFunctionality(hDlg, ID_LNAME_INPUT);
 			bEnableEditControls = FALSE;
 			bEnableIdEditControl = TRUE;
+			bNewUserSelected = FALSE;
 
 			//Register radio button pressed, bRegisteredSelected flag will be true.
 			bRegisteredSelected = TRUE;
@@ -239,6 +253,7 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 			bDeleteSelected = TRUE;
 
 			bRegisteredSelected = FALSE;
+			bNewUserSelected = FALSE;
 		}
 		else if (wParam == ID_RADIO_NEW) {
 			//MessageBox(hDlg, TEXT("IDAUTORADIO1 selected"), TEXT("IDAUTORADIO1"), MB_OK);
@@ -248,7 +263,7 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 			EnableFunctionality(hDlg, ID_LNAME_INPUT);
 
 			DisableFunctionality(hDlg, ID_EDIT_TEXT_BOX_1);
-
+			bNewUserSelected = TRUE;
 			bEnableEditControls = TRUE;
 			bEnableIdEditControl = FALSE;
 
@@ -311,6 +326,7 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 						if (IsFilePresent((LPCSTR)FilePath)) {
 							MessageBox(hDlg, TEXT("User is not registered.\nPlease register first"), TEXT("User not available"), MB_OK);
 							SetFocus((HWND)lParam);
+							SetDlgItemText(hDlg, ID_EDIT_TEXT_BOX_1, TEXT(""));
 							break;
 						}
 						if (wParam == ID_RADIO_REGISTER) {
