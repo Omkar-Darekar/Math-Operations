@@ -61,5 +61,7 @@
 #define ID_MINUS_TEXT 165
 #define ID_MUL_TEXT 166
 #define ID_DIV_TEXT 167
+
+#define ID_LOG_PUSHBUTTON 168
 //#define ID_COMBOBOX_CITY 146
 
