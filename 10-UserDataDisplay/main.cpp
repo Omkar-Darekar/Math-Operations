@@ -124,6 +124,16 @@ bool compare(string& s1, string& s2)
 void SetTextToTextBox(HWND hDlg, int ID, char* str) {
 	SetDlgItemText(hDlg, ID, LPCSTR(str));
 }
+
+void DisableCheckBox(HWND hDlg, int ID) {
+	HWND TmpCBhWnd = GetDlgItem(hDlg, ID);
+	EnableWindow(TmpCBhWnd, FALSE);
+}
+
+void EnableCheckBox(HWND hDlg, int ID) {
+	HWND TmpCBhWnd = GetDlgItem(hDlg, ID);
+	EnableWindow(TmpCBhWnd, TRUE);
+}
 INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 	TCHAR str[255], tmp[255];
 	wchar_t State[255];
@@ -142,8 +152,37 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 
 	switch (iMsg) {
 	case WM_INITDIALOG:
+		//By default New radio button check
 		CheckRadioButton(hDlg, ID_RADIO_REGISTER, ID_RADIO_NEW, ID_RADIO_NEW);
+		
+		//Initially disabling everything
 		DisableFunctionality(hDlg, ID_EDIT_TEXT_BOX_1);
+		DisableFunctionality(hDlg, ID_ADDITION_TEXTBOX_1);
+		DisableFunctionality(hDlg, ID_ADDITION_TEXTBOX_2);
+		DisableFunctionality(hDlg, ID_SUBTRACTION_TEXTBOX_1);
+		DisableFunctionality(hDlg, ID_SUBTRACTION_TEXTBOX_2);
+		DisableFunctionality(hDlg, ID_MULTIPLICATION_TEXTBOX_1);
+		DisableFunctionality(hDlg, ID_MULTIPLICATION_TEXTBOX_2);
+		DisableFunctionality(hDlg, ID_DIVISION_TEXTBOX_1);
+		DisableFunctionality(hDlg, ID_DIVISION_TEXTBOX_2);
+		DisableFunctionality(hDlg, ID_SQUARE_TEXTBOX);
+		DisableFunctionality(hDlg, ID_CUBE_TEXTBOX);
+		DisableFunctionality(hDlg, ID_SQUAREROOT_TEXTBOX);
+		DisableFunctionality(hDlg, ID_CUBEROOT_TEXTBOX);
+		DisableFunctionality(hDlg, ID_SIN_TEXTBOX);
+		DisableFunctionality(hDlg, ID_COS_TEXTBOX);
+		//Diabling all Checkboxes
+		DisableCheckBox(hDlg, ID_CHECKBOX_ADD);
+		DisableCheckBox(hDlg, ID_CHECKBOX_SUB);
+		DisableCheckBox(hDlg, ID_CHECKBOX_MUL);
+		DisableCheckBox(hDlg, ID_CHECKBOX_DIV);
+		DisableCheckBox(hDlg, ID_CHECKBOX_SQR);
+		DisableCheckBox(hDlg, ID_CHECKBOX_CUBE);
+		DisableCheckBox(hDlg, ID_CHECKBOX_SQR_ROOT);
+		DisableCheckBox(hDlg, ID_CHECKBOX_CUBE_ROOT);
+		DisableCheckBox(hDlg, ID_CHECKBOX_SIN);
+		DisableCheckBox(hDlg, ID_CHECKBOX_COS);
+
 		bEnableEditControls = TRUE;
 		bEnableIdEditControl = FALSE;
 		
@@ -240,6 +279,18 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 						SetTextToTextBox(hDlg, ID_FNAME_INPUT, FName);
 						SetTextToTextBox(hDlg, ID_MNAME_INPUT, MName);
 						SetTextToTextBox(hDlg, ID_LNAME_INPUT, LName);
+
+						//Enabling CheckBox
+						EnableCheckBox(hDlg, ID_CHECKBOX_ADD);
+						EnableCheckBox(hDlg, ID_CHECKBOX_SUB);
+						EnableCheckBox(hDlg, ID_CHECKBOX_MUL);
+						EnableCheckBox(hDlg, ID_CHECKBOX_DIV);
+						EnableCheckBox(hDlg, ID_CHECKBOX_SQR);
+						EnableCheckBox(hDlg, ID_CHECKBOX_CUBE);
+						EnableCheckBox(hDlg, ID_CHECKBOX_SQR_ROOT);
+						EnableCheckBox(hDlg, ID_CHECKBOX_CUBE_ROOT);
+						EnableCheckBox(hDlg, ID_CHECKBOX_SIN);
+						EnableCheckBox(hDlg, ID_CHECKBOX_COS);
 					}
 					else if (TextLineCnt == 3){}
 						
@@ -297,7 +348,7 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 		}
 		if (wParam == ID_RADIO_REGISTER) {
 			CheckRadioButton(hDlg, ID_RADIO_REGISTER, ID_RADIO_NEW, ID_RADIO_REGISTER);
-
+			
 			EnableFunctionality(hDlg, ID_EDIT_TEXT_BOX_1);
 
 			DisableFunctionality(hDlg, ID_FNAME_INPUT);
@@ -311,6 +362,22 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 			bRegisteredSelected = TRUE;
 
 			bDeleteSelected = FALSE;
+
+			//Disabling COMBOBOX
+			HWND TmpHwnd = GetDlgItem(hDlg, ID_COMBOBOX_CITY);
+			EnableWindow(TmpHwnd, FALSE);
+
+			//Diabling all Checkboxes
+			DisableCheckBox(hDlg, ID_CHECKBOX_ADD);
+			DisableCheckBox(hDlg, ID_CHECKBOX_SUB);
+			DisableCheckBox(hDlg, ID_CHECKBOX_MUL);
+			DisableCheckBox(hDlg, ID_CHECKBOX_DIV);
+			DisableCheckBox(hDlg, ID_CHECKBOX_SQR);
+			DisableCheckBox(hDlg, ID_CHECKBOX_CUBE);
+			DisableCheckBox(hDlg, ID_CHECKBOX_SQR_ROOT);
+			DisableCheckBox(hDlg, ID_CHECKBOX_CUBE_ROOT);
+			DisableCheckBox(hDlg, ID_CHECKBOX_SIN);
+			DisableCheckBox(hDlg, ID_CHECKBOX_COS);
 		}
 		else if (wParam == ID_RADIO_DELETE) {
 			CheckRadioButton(hDlg, ID_RADIO_REGISTER, ID_RADIO_NEW, ID_RADIO_DELETE);
@@ -320,6 +387,11 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 			DisableFunctionality(hDlg, ID_FNAME_INPUT);
 			DisableFunctionality(hDlg, ID_MNAME_INPUT);
 			DisableFunctionality(hDlg, ID_LNAME_INPUT);
+			
+			//Disabling COMBOBOX
+			HWND TmpHwnd = GetDlgItem(hDlg, ID_COMBOBOX_CITY);
+			EnableWindow(TmpHwnd, FALSE);
+
 			bEnableEditControls = FALSE;
 			bEnableIdEditControl = TRUE;
 
@@ -327,6 +399,19 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 
 			bRegisteredSelected = FALSE;
 			bNewUserSelected = FALSE;
+
+			//Diabling all Checkboxes
+			DisableCheckBox(hDlg, ID_CHECKBOX_ADD);
+			DisableCheckBox(hDlg, ID_CHECKBOX_SUB);
+			DisableCheckBox(hDlg, ID_CHECKBOX_MUL);
+			DisableCheckBox(hDlg, ID_CHECKBOX_DIV);
+			DisableCheckBox(hDlg, ID_CHECKBOX_SQR);
+			DisableCheckBox(hDlg, ID_CHECKBOX_CUBE);
+			DisableCheckBox(hDlg, ID_CHECKBOX_SQR_ROOT);
+			DisableCheckBox(hDlg, ID_CHECKBOX_CUBE_ROOT);
+			DisableCheckBox(hDlg, ID_CHECKBOX_SIN);
+			DisableCheckBox(hDlg, ID_CHECKBOX_COS);
+
 		}
 		else if (wParam == ID_RADIO_NEW) {
 			//MessageBox(hDlg, TEXT("IDAUTORADIO1 selected"), TEXT("IDAUTORADIO1"), MB_OK);
@@ -335,13 +420,30 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 			EnableFunctionality(hDlg, ID_MNAME_INPUT);
 			EnableFunctionality(hDlg, ID_LNAME_INPUT);
 
-			DisableFunctionality(hDlg, ID_EDIT_TEXT_BOX_1);
+			DisableFunctionality(hDlg, ID_EDIT_TEXT_BOX_1);	
+
 			bNewUserSelected = TRUE;
 			bEnableEditControls = TRUE;
 			bEnableIdEditControl = FALSE;
 
 			bRegisteredSelected = FALSE;
 			bDeleteSelected = FALSE;
+
+			//Enabling COMBOBOX
+			HWND TmpHwnd = GetDlgItem(hDlg, ID_COMBOBOX_CITY);
+			EnableWindow(TmpHwnd, TRUE);
+
+			//Diabling all Checkboxes
+			DisableCheckBox(hDlg, ID_CHECKBOX_ADD);
+			DisableCheckBox(hDlg, ID_CHECKBOX_SUB);
+			DisableCheckBox(hDlg, ID_CHECKBOX_MUL);
+			DisableCheckBox(hDlg, ID_CHECKBOX_DIV);
+			DisableCheckBox(hDlg, ID_CHECKBOX_SQR);
+			DisableCheckBox(hDlg, ID_CHECKBOX_CUBE);
+			DisableCheckBox(hDlg, ID_CHECKBOX_SQR_ROOT);
+			DisableCheckBox(hDlg, ID_CHECKBOX_CUBE_ROOT);
+			DisableCheckBox(hDlg, ID_CHECKBOX_SIN);
+			DisableCheckBox(hDlg, ID_CHECKBOX_COS);
 		}
 		
 
@@ -444,6 +546,167 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 			break;
 
 		}
+
+		//Add
+		if (wParam == ID_CHECKBOX_ADD) {
+			BOOL bChecked = IsDlgButtonChecked(hDlg, ID_CHECKBOX_ADD);
+			if (bChecked) {
+				//To uncheck and disabling textbox
+				CheckDlgButton(hDlg, ID_CHECKBOX_ADD, BST_UNCHECKED);
+				DisableFunctionality(hDlg, ID_ADDITION_TEXTBOX_1);
+				DisableFunctionality(hDlg, ID_ADDITION_TEXTBOX_2);
+			}
+			else {
+				//To check and enabling textbox
+				CheckDlgButton(hDlg, ID_CHECKBOX_ADD, BST_CHECKED);
+				EnableFunctionality(hDlg, ID_ADDITION_TEXTBOX_1);
+				EnableFunctionality(hDlg, ID_ADDITION_TEXTBOX_2);
+			}
+		}
+
+		//Sub
+		if (wParam == ID_CHECKBOX_SUB) {
+			BOOL bChecked = IsDlgButtonChecked(hDlg, ID_CHECKBOX_SUB);
+			if (bChecked) {
+				//To uncheck and disabling textbox
+				CheckDlgButton(hDlg, ID_CHECKBOX_SUB, BST_UNCHECKED);
+				DisableFunctionality(hDlg, ID_SUBTRACTION_TEXTBOX_1);
+				DisableFunctionality(hDlg, ID_SUBTRACTION_TEXTBOX_2);
+			}
+			else {
+				//To check and enabling textbox
+				CheckDlgButton(hDlg, ID_CHECKBOX_SUB, BST_CHECKED);
+				EnableFunctionality(hDlg, ID_SUBTRACTION_TEXTBOX_1);
+				EnableFunctionality(hDlg, ID_SUBTRACTION_TEXTBOX_2);
+			}
+		}
+
+		//Multiplication
+		if (wParam == ID_CHECKBOX_MUL) {
+			BOOL bChecked = IsDlgButtonChecked(hDlg, ID_CHECKBOX_MUL);
+			if (bChecked) {
+				//To uncheck and disabling textbox
+				CheckDlgButton(hDlg, ID_CHECKBOX_MUL, BST_UNCHECKED);
+				DisableFunctionality(hDlg, ID_MULTIPLICATION_TEXTBOX_1);
+				DisableFunctionality(hDlg, ID_MULTIPLICATION_TEXTBOX_2);
+			}
+			else {
+				//To check and enabling textbox
+				CheckDlgButton(hDlg, ID_CHECKBOX_MUL, BST_CHECKED);
+				EnableFunctionality(hDlg, ID_MULTIPLICATION_TEXTBOX_1);
+				EnableFunctionality(hDlg, ID_MULTIPLICATION_TEXTBOX_2);
+			}
+		}
+
+		//Division
+		if (wParam == ID_CHECKBOX_DIV) {
+			BOOL bChecked = IsDlgButtonChecked(hDlg, ID_CHECKBOX_DIV);
+			if (bChecked) {
+				//To uncheck and disabling textbox
+				CheckDlgButton(hDlg, ID_CHECKBOX_DIV, BST_UNCHECKED);
+				DisableFunctionality(hDlg, ID_DIVISION_TEXTBOX_1);
+				DisableFunctionality(hDlg, ID_DIVISION_TEXTBOX_2);
+			}
+			else {
+				//To check and enabling textbox
+				CheckDlgButton(hDlg, ID_CHECKBOX_DIV, BST_CHECKED);
+				EnableFunctionality(hDlg, ID_DIVISION_TEXTBOX_1);
+				EnableFunctionality(hDlg, ID_DIVISION_TEXTBOX_2);
+			}
+		}
+
+		//Square
+		if (wParam == ID_CHECKBOX_SQR) {
+			BOOL bChecked = IsDlgButtonChecked(hDlg, ID_CHECKBOX_SQR);
+			if (bChecked) {
+				//To uncheck and disabling textbox
+				CheckDlgButton(hDlg, ID_CHECKBOX_SQR, BST_UNCHECKED);
+				DisableFunctionality(hDlg, ID_SQUARE_TEXTBOX);
+			}
+			else {
+				//To check and enabling textbox
+				CheckDlgButton(hDlg, ID_CHECKBOX_SQR, BST_CHECKED);
+				EnableFunctionality(hDlg, ID_SQUARE_TEXTBOX);
+			}
+		}
+
+		//Cube
+		if (wParam == ID_CHECKBOX_CUBE) {
+			BOOL bChecked = IsDlgButtonChecked(hDlg, ID_CHECKBOX_CUBE);
+			if (bChecked) {
+				//To uncheck and disabling textbox
+				CheckDlgButton(hDlg, ID_CHECKBOX_CUBE, BST_UNCHECKED);
+				DisableFunctionality(hDlg, ID_CUBE_TEXTBOX);
+			}
+			else {
+				//To check and enabling textbox
+				CheckDlgButton(hDlg, ID_CHECKBOX_CUBE, BST_CHECKED);
+				EnableFunctionality(hDlg, ID_CUBE_TEXTBOX);
+			}
+		}
+
+		//Square root
+		if (wParam == ID_CHECKBOX_SQR_ROOT) {
+			BOOL bChecked = IsDlgButtonChecked(hDlg, ID_CHECKBOX_SQR_ROOT);
+			if (bChecked) {
+				//To uncheck and disabling textbox
+				CheckDlgButton(hDlg, ID_CHECKBOX_SQR_ROOT, BST_UNCHECKED);
+				DisableFunctionality(hDlg, ID_SQUAREROOT_TEXTBOX);
+			}
+			else {
+				//To check and enabling textbox
+				CheckDlgButton(hDlg, ID_CHECKBOX_SQR_ROOT, BST_CHECKED);
+				EnableFunctionality(hDlg, ID_SQUAREROOT_TEXTBOX);
+			}
+		}
+
+		//Cube root
+		if (wParam == ID_CHECKBOX_CUBE_ROOT) {
+			BOOL bChecked = IsDlgButtonChecked(hDlg, ID_CHECKBOX_CUBE_ROOT);
+			if (bChecked) {
+				//To uncheck and disabling textbox
+				CheckDlgButton(hDlg, ID_CHECKBOX_CUBE_ROOT, BST_UNCHECKED);
+				DisableFunctionality(hDlg, ID_CUBEROOT_TEXTBOX);
+			}
+			else {
+				//To check and enabling textbox
+				CheckDlgButton(hDlg, ID_CHECKBOX_CUBE_ROOT, BST_CHECKED);
+				EnableFunctionality(hDlg, ID_CUBEROOT_TEXTBOX);
+			}
+		}
+
+		//Sine
+		if (wParam == ID_CHECKBOX_SIN) {
+			BOOL bChecked = IsDlgButtonChecked(hDlg, ID_CHECKBOX_SIN);
+			if (bChecked) {
+				//To uncheck and disabling textbox
+				CheckDlgButton(hDlg, ID_CHECKBOX_SIN, BST_UNCHECKED);
+				DisableFunctionality(hDlg, ID_SIN_TEXTBOX);
+			}
+			else {
+				//To check and enabling textbox
+				CheckDlgButton(hDlg, ID_CHECKBOX_SIN, BST_CHECKED);
+				EnableFunctionality(hDlg, ID_SIN_TEXTBOX);
+			}
+		}
+
+		//Cosec
+		if (wParam == ID_CHECKBOX_COS) {
+			BOOL bChecked = IsDlgButtonChecked(hDlg, ID_CHECKBOX_COS);
+			if (bChecked) {
+				//To uncheck and disabling textbox
+				CheckDlgButton(hDlg, ID_CHECKBOX_COS, BST_UNCHECKED);
+				DisableFunctionality(hDlg, ID_COS_TEXTBOX);
+			}
+			else {
+				//To check and enabling textbox
+				CheckDlgButton(hDlg, ID_CHECKBOX_COS, BST_CHECKED);
+				EnableFunctionality(hDlg, ID_COS_TEXTBOX);
+			}
+		}
+
+
+
 		break;
 
 	default:
