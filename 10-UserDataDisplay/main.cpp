@@ -292,7 +292,32 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 						EnableCheckBox(hDlg, ID_CHECKBOX_SIN);
 						EnableCheckBox(hDlg, ID_CHECKBOX_COS);
 					}
-					else if (TextLineCnt == 3){}
+					else if (TextLineCnt == 3){
+						const char delim[] = ":";
+						char* token = NULL;
+						token = strtok(line, delim);
+						while (token != NULL) {
+							token = strtok(NULL, delim);
+							break;
+						}
+						TotalNumberOfItemInCombobox = SendDlgItemMessage(hDlg, ID_COMBOBOX_CITY, CB_GETCOUNT, 0, 0);
+						for (int i = 0; i < TotalNumberOfItemInCombobox; i++) {
+							SendDlgItemMessage(hDlg, ID_COMBOBOX_CITY, CB_GETLBTEXT, i, (LPARAM)pch);
+							if (strcmp(token, pch) == 0) {
+								MessageBox(hDlg, (LPCSTR)token, TEXT(""), MB_OK);
+								MessageBox(hDlg, (LPCSTR)pch, TEXT(""), MB_OK);
+								break;
+							}
+							else {
+								fp = fopen("_Temp.txt", "a+");
+								if (fp != NULL) {
+									fprintf(fp, "-%s- != -%s-", token, pch);
+									fclose(fp);
+								}
+							}
+						}
+						
+					}
 						
 					//Incrementing counter after every line read
 					TextLineCnt++;
@@ -309,6 +334,9 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 				}
 
 				/*Checking input string which is going to be write into file is not NULL*/
+				GetDlgItemText(hDlg, ID_FNAME_INPUT, FName, 255);
+				GetDlgItemText(hDlg, ID_MNAME_INPUT, MName, 255);
+				GetDlgItemText(hDlg, ID_LNAME_INPUT, LName, 255);
 				if (!(strcmp(FName, "")) || !(strcmp(MName, "")) || !(strcmp(LName, "")) || !(strcmp(CityChoosen, ""))) {
 					MessageBox(hDlg, TEXT("Please enter valid inputs"), TEXT("Error"), MB_OK);
 					break;
@@ -320,6 +348,14 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 
 				sprintf(FileUserData, "ID : %d\nName : %s %s %s\nCity : %sRegistration Date and Time : %02d-%02d-%02d %02d:%02d:%02d",
 					i, FName, MName, LName, CityChoosen, SysTime.wDay, SysTime.wMonth, SysTime.wYear, SysTime.wHour, SysTime.wMinute, SysTime.wSecond);
+				
+				//After using variable, freeing it for further use.
+				strcpy(&CityChoosen[0], "\0");
+				
+				//After creating user, setting combobox to -1.
+				HWND hwnd = GetDlgItem(hDlg, ID_COMBOBOX_CITY);
+				SendMessage(hwnd, CB_SETCURSEL, (WPARAM)-1, 0);
+
 				fp = fopen(FilePath, "a+");
 				if (fp == NULL) {
 					MessageBox(hDlg, TEXT("Error while creating new user!"), TEXT("FILE ACCESS ERROR"), MB_OK);
@@ -329,13 +365,13 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam) {
 				fclose(fp);
 
 				/*Clearing text from input box after writing it into file*/
-				DisableFunctionality(hDlg, ID_FNAME_INPUT);
-				DisableFunctionality(hDlg, ID_MNAME_INPUT);
-				DisableFunctionality(hDlg, ID_LNAME_INPUT);
-
+				SetDlgItemText(hDlg, ID_FNAME_INPUT, TEXT(""));
+				SetDlgItemText(hDlg, ID_MNAME_INPUT, TEXT(""));
+				SetDlgItemText(hDlg, ID_LNAME_INPUT, TEXT(""));
+				
 				TCHAR temp[256];
 				wsprintf(temp, "Your ID is %d. Please note it down carefully.", i);
-				MessageBox(hDlg, temp, TEXT("Information"), MB_OK);
+				MessageBox(hDlg, temp, TEXT("Login Information"), MB_OK);
 
 			}
 			//SetDlgItemText(hDlg, ID_EDIT_TEXT_BOX_1, TEXT(""));
