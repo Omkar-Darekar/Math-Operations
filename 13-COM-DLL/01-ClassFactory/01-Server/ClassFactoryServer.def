@@ -1,0 +1,4 @@
+LIBRARY ClassFactoryServer
+EXPORTS
+		DllGetClassObject PRIVATE
+		DllCanUnloadNow PRIVATE

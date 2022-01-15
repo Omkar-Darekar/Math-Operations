@@ -1,0 +1,4 @@
+LIBRARY InnerComponentContainment
+EXPORTS
+		DllGetClassObject PRIVATE
+		DllCanUnloadNow PRIVATE
